@@ -1,5 +1,9 @@
 # day2_processbar
 
+## Source of Inspiration
+
+https://uimovement.com/design/upload-play-pause-animation/
+
 ## Project setup
 ```
 npm install
