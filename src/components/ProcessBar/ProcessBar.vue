@@ -1,27 +1,40 @@
 <template>
     <div class="processbar-container">
         <div class="info">
-            <h2 class="title">{{`Updating ${total} files`}}</h2>
+            <div class="title">{{`Updating ${total} files`}}</div>
             <div class="details">
                 <span class="percent">{{processPercent}}</span>
+                <span class="dot"> &middot; </span>
                 <span class="status">
-                    {{isPaused ? 'Paused' : `${remainTime | toInt} seconds left`}}
+                    {{isPaused ? 'Paused' : remainTimeString}}
                 </span>
             </div>
         </div>
         <div class="buttons">
-            <div class="button circle pause" @click="handleClick">
-                <img svg-inline class="icon" src="./img/pause.svg" />
-                <img svg-inline class="icon" src="./img/loading.svg" />
+            <div class="button circle toggle" :class="isPaused ? 'pause' : ''" @click="handleClick" @mousedown="handleMouseDown" @mouseup="handleMouseUp">
+                <div class="svg-container">
+                    <div class="pause-svg-container">
+                         <img svg-inline class="icon" src="./img/pause.svg" />
+                     </div>
+                     <div class="loading-svg-container">
+                         <img svg-inline class="icon" src="./img/loading.svg" />
+                     </div>
+                </div>
             </div>
             <div class="button circle close">
-                <img svg-inline class="icon" src="./img/close.svg" alt="closeIcon" />
+                <div class="svg-container">
+                    <img svg-inline class="icon" src="./img/close.svg" alt="closeIcon" />
+                </div>
             </div>
             <div class="button expand">
-                <img svg-inline class="icon" src="./img/expand.svg" alt="expandIcon" />
+                <div class="svg-container">
+                    <img svg-inline class="icon" src="./img/expand.svg" alt="expandIcon" />
+                </div>
             </div>
             <div class="button more">
-                <img svg-inline class="icon" src="./img/more.svg" alt="moreIcon" />
+                <div class="svg-container">
+                    <img svg-inline class="icon" src="./img/more.svg" alt="moreIcon" />
+                </div>
             </div>
         </div>
         <div class="animation" :style="{width: processPercent}"></div>
@@ -48,19 +61,25 @@ export default {
             mockProcess: null
         }
     },
-    filter: {
-        toInt(value) {
-            return value.toFixed(0);
-        }
-    },
     computed: {
         processPercent() {
             return (100 - this.remainTime / this.totalTime * 100).toFixed(0) + '%'
+        },
+        remainTimeString() {
+            return this.remainTime.toFixed(0) + ' seconds left';
         }
     },
     methods: {
         handleClick() {
             this.isPaused = ! this.isPaused;
+        },
+        handleMouseDown() {
+            let buttonDom = document.querySelectorAll('.button')[0];
+            buttonDom.style.transform = 'scale(0.75)';
+        },
+        handleMouseUp() {
+            let buttonDom = document.querySelectorAll('.button')[0];
+            buttonDom.style.transform = 'scale(1)';
         }
     },
     mounted() {
@@ -83,27 +102,42 @@ export default {
 </script>
 <style lang="scss" scoped>
 .processbar-container {
-    width: 80%;
-    height: 10rem;
+    width: 36rem;
+    height: 8rem;
     background-color: white;
-    border-radius: 15px;
-    -webkit-box-shadow: 3px 3px 10px 10px #eeeeee;
-    box-shadow: 3px 3px 10px 10px #eeeeee;
+    border-radius: 10px;
+    -webkit-box-shadow: 3px 3px 15px 15px #eaeaea;
+    box-shadow: 3px 3px 15px 15px #eaeaea;
     margin: 5% auto;
     padding: 5px;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     position: relative;
     overflow: hidden;
     .info {
-        width: 50%;
+        width: 40%;
         height:80%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+        flex-direction: column;
+        z-index: 1;
+        padding-left: 1.8rem;
         .title {
-
+            width: 90%;
+            font-size: 1.5rem;
+            height: 3rem;
+            line-height: 3rem;
+            text-align: left;
         }
         .details {
-
+            width: 90%;
+            height: 2rem;
+            line-height: 2rem;
+            text-align: left;
+            font-size: 1.2rem;
+            color: #909090;
         }
     }
     .buttons {
@@ -112,6 +146,7 @@ export default {
         display: flex;
         justify-content: space-around;
         align-items: center;
+        z-index: 1;
         .button {
             width: 5rem;
             height: 5rem;
@@ -120,16 +155,67 @@ export default {
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: all 0.2s;
+            transition-timing-function: ease-out;
+            position: relative;
+            cursor: pointer;
+            .svg-container {
+                width: 3rem;
+                height: 3rem;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+            }
+            .pause-svg-container, .loading-svg-container {
+                position:absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .pause-svg-container {
+                opacity: 1;
+                transition: all 1s;
+            }
+            .loading-svg-container {
+                opacity: 0;
+                transition: all 0.4s;
+                transform: rotate(180deg);
+            }
+            &.pause {
+                .pause-svg-container {
+                    transition: all 0.4s;
+                    opacity: 0;
+                }
+                .loading-svg-container {
+                    transition: all 1s;
+                    opacity: 1;
+                    transform: rotate(0deg);
+                }
+            }
             svg {
-                width: 3.5rem;
-                height: 3.5rem;
+                width: 2.2rem;
+                height: 2.2rem;
+                path {
+                    fill: #908a9e;
+                }
             } 
             &.circle {
-                border-radius: 50%;
-                background-color: rgba(155,175,196,0.5);
-                color: white;
-                width: 3.5rem;
-                height: 3.5rem;
+                opacity: 0;
+                transform: translate(0rem,1rem);
+                .svg-container {
+                    margin: 0 0.6rem;
+                    border-radius: 50%;
+                    background-color: rgba(155,175,196,0.2);
+                    color: white;
+                    &:hover {
+                        background-color: rgba(155,175,196,0.3);
+                    }
+                }
             }           
         }
     }
@@ -140,6 +226,13 @@ export default {
         left: 0;
         background-color: rgba(155,175,196,0.1);
         transition: all 0.1s;
+        z-index: 0;
+    }
+    &:hover {
+        .button.circle {
+            opacity: 1;
+            transform: translate(0,0);
+        }
     }
 }
 </style>
